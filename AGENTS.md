@@ -10,7 +10,7 @@
 
 ## 命名与发布约定
 
-- 脚本文件固定命名为 `<repo>-auto-checkin.scriptcat.user.js`，与 `ablesci-auto-checkin` 仓库的 `ablesci.auto-checkin.scriptcat.user.js` 惯例一致。
+- 脚本文件固定命名为 `<repo>.scriptcat.user.js`（本仓库即 `linuxsb-auto-checkin.scriptcat.user.js`）；同类仓库如 `ablesci-auto-checkin` 使用 `ablesci.auto-checkin.scriptcat.user.js`，命名形态因站名而异，以各仓库实际为准。
 - 脚本内 `@updateURL` / `@downloadURL` 指向本仓库 `main` 分支的 raw 地址：
   `https://raw.githubusercontent.com/Walvez/linuxsb-auto-checkin/main/linuxsb-auto-checkin.scriptcat.user.js`
 - 脚本说明（脚本猫页面上的「脚本说明」）指向：

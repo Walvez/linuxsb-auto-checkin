@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         linux.sb 自动签到
 // @namespace    https://github.com/Walvez/linuxsb-auto-checkin
-// @version      1.0.0
+// @version      1.0.1
 // @description  在脚本猫后台为 linux.sb 执行每日签到；复用浏览器登录态，无需复制 Cookie，也无需保持网页打开。
 // @author       Walvez
 // @homepageURL  https://github.com/Walvez/linuxsb-auto-checkin
@@ -18,6 +18,8 @@
 // @grant        GM_notification
 // @grant        GM_openInTab
 // @grant        GM_log
+// @grant        GM_setValue
+// @grant        GM_getValue
 // @grant        GM_registerMenuCommand
 // @connect      linux.sb
 // @connect      www.linux.bi
