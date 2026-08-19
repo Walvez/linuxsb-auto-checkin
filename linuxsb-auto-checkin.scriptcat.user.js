@@ -1,7 +1,7 @@
 // ==UserScript==
 // @name         linux.sb 自动签到
 // @namespace    https://github.com/Walvez/linuxsb-auto-checkin
-// @version      1.0.1
+// @version      1.0.2
 // @description  在脚本猫后台为 linux.sb 执行每日签到；复用浏览器登录态，无需复制 Cookie，也无需保持网页打开。
 // @author       Walvez
 // @homepageURL  https://github.com/Walvez/linuxsb-auto-checkin
@@ -61,7 +61,21 @@ function openSignPage() {
 function notify(title, text, options = {}) {
   const payload = { title, text: String(text || title) };
   if (typeof options.onclick === "function") payload.onclick = options.onclick;
-  GM_notification(payload);
+  try {
+    GM_notification(payload);
+  } catch (error) {
+    // 通知不可用（权限被禁/引擎不支持）时降级为日志，保证反馈不静默丢失
+    log(`通知未显示：${title} ${payload.text}（${error && error.message}）`, "warn");
+  }
+}
+
+// 防御式存取：旧版/严格环境下 GM_getValue/GM_setValue 可能缺失，避免 TypeError 导致整个流程静默失败
+function safeGet(key, fallback) {
+  return typeof GM_getValue === "function" ? GM_getValue(key, fallback) : fallback;
+}
+
+function safeSet(key, value) {
+  if (typeof GM_setValue === "function") GM_setValue(key, value);
 }
 
 function httpRequest(options) {
@@ -193,7 +207,7 @@ async function doSign() {
 
   // 今天已签到
   if (page.status === "signed-in") {
-    GM_setValue(DONE_KEY, todayKey());
+    safeSet(DONE_KEY, todayKey());
     throw Object.assign(new Error("今日已签到。"), { kind: OUTCOME.ALREADY_CHECKED });
   }
 
@@ -253,7 +267,7 @@ async function doSign() {
     });
   }
 
-  GM_setValue(DONE_KEY, todayKey());
+  safeSet(DONE_KEY, todayKey());
   return { status: "signed-in" };
 }
 
@@ -275,9 +289,9 @@ function buildOutcomeForError(error) {
   return { kind, message };
 }
 
-async function runCheckin() {
-  // 今日已完成则不再请求（本地去重的冗余保险）
-  if (GM_getValue(DONE_KEY, "") === todayKey()) {
+async function runCheckin({ manual = false } = {}) {
+  // 本地去重仅用于自动定时路径；手动「立即签到」忽略去重，强制真实请求并总是给出反馈
+  if (!manual && safeGet(DONE_KEY, "") === todayKey()) {
     log("今日已完成，跳过。");
     return { kind: OUTCOME.ALREADY_CHECKED, message: "今日已签到。" };
   }
@@ -292,12 +306,18 @@ async function runCheckin() {
     const outcome = buildOutcomeForError(error);
     log(`分类：${outcome.kind}；${outcome.message}`, "error");
     notifyOutcome(outcome.kind, outcome.message);
-    throw error; // 让脚本猫定时触发时识别为失败，下一个候选时刻重试
+    if (manual) return outcome; // 手动触发：反馈已完成，不再向上抛
+    throw error; // 自动定时：让脚本猫识别为失败，下一个候选时刻重试
   }
 }
 
 if (typeof GM_registerMenuCommand === "function") {
-  GM_registerMenuCommand("立即签到", () => runCheckin());
+  GM_registerMenuCommand("立即签到", () =>
+    runCheckin({ manual: true }).catch((error) => {
+      // 兜底：任何意外（解析/引擎异常）都不能静默，至少记录日志
+      log(`手动签到未预期异常：${error && error.message}`, "error");
+    })
+  );
   GM_registerMenuCommand("打开签到页", () => openSignPage());
 }
 

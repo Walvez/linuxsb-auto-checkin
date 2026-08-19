@@ -1,6 +1,6 @@
 {
   "name": "linuxsb-auto-checkin",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "private": true,
   "description": "linux.sb 每日自动签到脚本（脚本猫 ScriptCat 定时脚本）",
   "engines": {

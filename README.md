@@ -12,7 +12,7 @@ linux.sb 每日自动签到脚本（**脚本猫 ScriptCat 定时脚本**版）�
 2. 打开并登录 [linux.sb](https://linux.sb/)
 3. 安装 `linuxsb-auto-checkin.scriptcat.user.js`（可用脚本猫的「新建脚本」粘贴，或通过脚本猫站点安装）
 4. 授权脚本访问 `linux.sb` / `www.linux.bi` 的 Cookie
-5. 首次建议从脚本菜单执行一次「立即签到」验证
+5. 首次建议从脚本菜单执行一次「立即签到」验证（若点击后无任何弹窗，先检查浏览器是否允许 linux.sb 的通知权限，并确认脚本已更新到最新版）
 
 ## 调度
 
